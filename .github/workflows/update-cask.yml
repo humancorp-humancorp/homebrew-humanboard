@@ -1,0 +1,24 @@
+name: Update Cask
+
+on:
+  repository_dispatch:
+    types: [update-cask]
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update cask version and sha
+        run: |
+          sed -i "s/version .*/version \"${{ github.event.client_payload.version }}\"/" Casks/humanboard.rb
+          sed -i "s/sha256 .*/sha256 \"${{ github.event.client_payload.sha256 }}\"/" Casks/humanboard.rb
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add .
+          git commit -m "Update to v${{ github.event.client_payload.version }}"
+          git push
